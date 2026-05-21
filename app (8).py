@@ -41,7 +41,7 @@ class Perso:
     def Draw(self):
         bltm(0, 0, 0, 0, 0, 256, 256, colkey=4, scale=1)
         blt(self.x, self.y, 0, 96, 128, 16, 16, 4)
-        blt(self.x-8, self.y-2, 0, 48, 96, 32, 16, 4, rotate = self.Rotation)
+        blt(self.x-8, self.y-2, 0, 64, 128, 32, 16, 4, rotate = self.Rotation)
         
 Main = Perso(16, 16)
 
