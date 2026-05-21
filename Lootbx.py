@@ -1,5 +1,9 @@
 import pyxel
 from random import randint
+from pyxel import *
+from math import degrees, atan2
+
+
 
 class Perso:
     def __init__(self, x, y):
@@ -37,7 +41,7 @@ class Perso:
         blt(self.x, self.y, 0, 96, 128, 16, 16, 4)
         blt(self.x-14, self.y-4, 0, 24, 96, 32, 16, 4, rotate = self.Rotation)
         
-Main = Perso(16, 16)
+
 
 class elements_obtenable:
     def __init__(self, nombre, boosts):
@@ -103,14 +107,24 @@ class game:
         pyxel.init(256,256,"hell yeah", 60)
         pyxel.load("U2.pyxres")
         self.boite = elements_obtenable(0, 0)
+        self.Main = Perso(16, 16)
         pyxel.run(self.update, self.draw)
+        
 
     def update(self):
         self.boite.update()
+        self.Main.Angle()
+        self.Main.compteur = (self.Main.compteur + 1)%2
+        if self.Main.compteur == 0:
+            self.Main.Go()
 
     def draw(self):
         pyxel.cls(4)
+        pyxel.mouse(True)
+        self.Main.Draw()
         self.boite.draw()
+        self.Main.Zone()
+        
         
 
 game()
