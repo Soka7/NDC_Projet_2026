@@ -13,6 +13,7 @@ class Perso:
         self.y = y
         self.Rotation = None
         self.compteur = 0
+        self.dgts = 1
         
     def Angle(self):
         self.Rotation = degrees(atan2(self.y - pyxel.mouse_y, self.x - pyxel.mouse_x))
@@ -41,7 +42,14 @@ class Perso:
     def Draw(self):
         bltm(0, 0, 0, 0, 0, 256, 256, colkey=4, scale=1)
         blt(self.x, self.y, 0, 96, 128, 16, 16, 4)
-        blt(self.x-8, self.y-2, 0, 32, 128, 32, 16, 4, rotate = self.Rotation)
+        blt(self.x-8, self.y-2, 0, 48, 160, 32, 16, 4, rotate = self.Rotation)
+        
+    def UpDgts(self):
+        self.dgts += 1
+        
+    def IfDgts(self, Ennemie):
+        if self.Rotation == Ennemie.rotation and ((Ennemie.x - self.x)**2 + (Ennemie.y - self.y)**2) <= 8**2:
+            "Une fonction fait degats"
         
 Main = Perso(24, 24)
 
