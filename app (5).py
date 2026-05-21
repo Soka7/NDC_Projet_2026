@@ -48,7 +48,7 @@ class Perso:
         self.dgts += 1
         
     def IfDgts(self, Ennemie):
-        if self.Rotation == Ennemie.rotation and ((Ennemie.x - self.x)**2 + (Ennemie.y - self.y)**2) <= 8**2:
+        if self.Rotation == Game.rotation and ((Ennemie.PosX - self.x)**2 + (Ennemie.PosY - self.y)**2) <= 8**2:
             "Une fonction fait degats"
         
 Main = Perso(24, 24)
