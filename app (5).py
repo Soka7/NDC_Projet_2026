@@ -14,6 +14,7 @@ class Perso:
         self.Rotation = None
         self.compteur = 0
         self.dgts = 1
+        self.vie = 20
         
     def Angle(self):
         self.Rotation = degrees(atan2(self.y - pyxel.mouse_y, self.x - pyxel.mouse_x))
@@ -51,6 +52,12 @@ class Perso:
         Ennemy.rotation = degrees(atan2(self.y - Ennemie.PosX, self.x - Ennemie.PosX))
         if self.Rotation == Ennemy.rotation and ((Ennemie.PosX - self.x)**2 + (Ennemy.PosY - self.y)**2) <= 8**2:
             "Une fonction fait degats"
+    
+    def DrawVie(self):
+        rect(self.x, self.y+12, self.vie*2, 4, 0)
+        
+    def PrendreCoup(self):
+        self.vie -= 5
         
 Main = Perso(24, 24)
 
@@ -58,6 +65,7 @@ def draw():
     pyxel.cls(4)
     Main.Draw()
     Main.Zone()
+    Main.DrawVie()
 def upt():
     Main.Angle()
     Main.compteur = (Main.compteur + 1)%2
