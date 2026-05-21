@@ -68,6 +68,16 @@ class Perso:
                 self.x += 4
                 time.sleep(50)
                 self.x -= 4
+                
+    def GetBoost(self):
+        for element in ListeBoosts:
+            if element.Boost == 0:
+                self.dgts += 1
+            if element.Boost == 1:
+                self.vie += 1
+            if element.Boost == 0:
+                self.vie += 2
+            
         
 Main = Perso(24, 24)
 
