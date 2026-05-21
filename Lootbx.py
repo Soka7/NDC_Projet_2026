@@ -2,6 +2,7 @@ import pyxel
 from random import randint
 from pyxel import *
 from math import degrees, atan2
+import time
 
 BulletBase : dict = {
     "AtlasX" : 0,
@@ -10,11 +11,22 @@ BulletBase : dict = {
     "AtlasHeight" : 16,
     "RotationOffset" : 90,
     "Speed" : 1,
-    "Lifetime" : 180,
+    "Lifetime" : 45,
     "Damage" : 1,
 }
 
-EnnemyBase : dict = {
+BulletBase1 : dict = {
+    "AtlasX" : 0,
+    "AtlasY" : 128,
+    "AtlasWidth" : 16,
+    "AtlasHeight" : 16,
+    "RotationOffset" : 90,
+    "Speed" : 1.3,
+    "Lifetime" : 60,
+    "Damage" : 1,
+}
+
+EnnemyBase1 : dict = {
     "PosX" : 64,
     "PosY" : 64,
     "AtlasX" : 96,
@@ -26,6 +38,54 @@ EnnemyBase : dict = {
     "Cooldown" : 75,
     "MoveCooldown" : 30,
     "BulletData" : BulletBase
+}
+
+EnnemyBase2 : dict = {
+    "PosX" : 112,
+    "PosY" : 128,
+    "AtlasX" : 112,
+    "AtlasY" : 128,
+    "AtlasWidth" : 16,
+    "AtlasHeight" : 16,
+    "Health" : 7,
+    "Speed" : 16,
+    "Cooldown" : 105,
+    "MoveCooldown" : 45,
+    "BulletData" : BulletBase
+}
+
+EnnemyBase3 : dict = {
+    "PosX" : 192,
+    "PosY" : 48,
+    "AtlasX" : 96,
+    "AtlasY" : 144,
+    "AtlasWidth" : 16,
+    "AtlasHeight" : 16,
+    "Health" : 3,
+    "Speed" : 16,
+    "Cooldown" : 45,
+    "MoveCooldown" : 15,
+    "BulletData" : BulletBase
+}
+
+EnnemyBase4 : dict = {
+    "PosX" : 32,
+    "PosY" : 32,
+    "AtlasX" : 112,
+    "AtlasY" : 144,
+    "AtlasWidth" : 16,
+    "AtlasHeight" : 16,
+    "Health" : 10,
+    "Speed" : 16,
+    "Cooldown" : 60,
+    "MoveCooldown" : 60,
+    "BulletData" : BulletBase1
+}
+
+EnnemyManagerData : dict = {
+    "EnnemyData" : [EnnemyBase1, EnnemyBase2, EnnemyBase3, EnnemyBase4],
+    "EnnemySpawnCooldown" : 300,
+    "MaxEnnemies" : 5,
 }
 
 class Bullet:
@@ -87,7 +147,6 @@ class Ennemy:
         self.AtlasY = Data["AtlasY"]
         self.AtlasWidth = Data["AtlasWidth"]
         self.AtlasHeight = Data["AtlasHeight"]
-        self.Health = Data["Health"]
         self.Speed = Data["Speed"]
         self.Cooldown = Data["Cooldown"]
         self.Movecooldown = Data["MoveCooldown"]
@@ -95,15 +154,28 @@ class Ennemy:
         self.Shootlist = []
         self.DirX = 1
         self.DirY = 0
+        self.MaxHealth = Data["Health"]
+        self.CurrentHealth = Data["Health"]
+        self.rotation = None
+    def liste(self):
+        return self.Shootlist
 
     def Move(self):
         self.PosX += self.Speed * self.DirX
         self.PosY += self.Speed * self.DirY
 
+    def TakeDamage(self, Damage : int) -> bool:
+        self.CurrentHealth -= Damage
+    
+    def CheckDead(self):
+        if self.CurrentHealth <= 0:
+            return True
+        return False
+
     def Update(self):
         if self.CheckCollisions():
             self.HandleCollisions()
-        if pyxel.frame_count % self.Movecooldown == 0:
+        if pyxel.frame_count  % self.Movecooldown == 0:
             self.Move()
         self.Shoot()
         for i in self.Shootlist:
@@ -113,6 +185,8 @@ class Ennemy:
     def Draw(self):
         Image : int = 0
         pyxel.blt(self.PosX, self.PosY, Image, self.AtlasX, self.AtlasY, self.AtlasWidth, self.AtlasHeight, pyxel.COLOR_BROWN)
+        pyxel.rect(self.PosX, self.PosY + self.AtlasHeight + 1, self.AtlasWidth, 3, pyxel.COLOR_NAVY)
+        pyxel.rect(self.PosX, self.PosY + self.AtlasHeight + 1, self.AtlasWidth * (self.CurrentHealth / self.MaxHealth), 3, pyxel.COLOR_GREEN)
         for i in self.Shootlist:
             i.draw()
 
@@ -133,7 +207,6 @@ class Ennemy:
         if pyxel.pget(self.PosX + self.Speed * self.DirX, self.PosY + self.Speed * self.DirY) != 0 or \
             self.PosX + self.Speed * self.DirX <= 0 or self.PosY + self.Speed * self.DirY <= 0 or\
             self.PosX + self.Speed * self.DirX >= 256 or self.PosY + self.Speed * self.DirY >= 256:
-            print("detected")
             return True
         return False
 
@@ -147,6 +220,35 @@ class Ennemy:
         self.DirX = newDirX
         self.DirY = newDirY
 
+class EnnemyManager:
+    def __init__(self, Data : dict):
+        self.MaxEnnemis = Data["MaxEnnemies"]
+        self.EnnemyCooldown = Data["EnnemySpawnCooldown"]
+        self.EnnemyData = Data["EnnemyData"]
+        self.EnnemyList = []
+    
+    def degat(self):
+        return self.EnnemyList
+
+    def update(self):
+        for i in self.EnnemyList:
+            i.Update()
+        
+        if pyxel.frame_count % self.EnnemyCooldown == 0 and len(self.EnnemyList) < self.MaxEnnemis:
+            self.EnnemyList.append(Ennemy(self.EnnemyData[pyxel.rndi(0, len(self.EnnemyData) - 1)]))
+        
+        ToRemove = []
+        for i in range(len(self.EnnemyList)):
+            if self.EnnemyList[i].CheckDead():
+                ToRemove.append(i)
+
+        for i in range(len(ToRemove) - 1, -1, -1):
+            self.EnnemyList.pop(ToRemove[i])
+    
+    def draw(self):
+        for i in self.EnnemyList:
+            i.Draw()
+
 
 class Perso:
     def __init__(self, x, y):
@@ -155,6 +257,8 @@ class Perso:
         self.Rotation = None
         self.compteur = 0
         self.dgts = 1
+        self.vie = 20
+        self.hit = False
         
     def Angle(self):
         self.Rotation = degrees(atan2(self.y - pyxel.mouse_y, self.x - pyxel.mouse_x))
@@ -190,8 +294,25 @@ class Perso:
         
     def IfDgts(self, Ennemy):
         Ennemy.rotation = degrees(atan2(self.y - Ennemy.PosX, self.x - Ennemy.PosX))
-        if self.Rotation == Ennemy.rotation and ((Ennemy.PosX - self.x)**2 + (Ennemy.PosY - self.y)**2) <= 8**2:
-            "Une fonction fait degats"
+        if self.Rotation <= Ennemy.rotation +5 and self.Rotation >= Ennemy.rotation -5 and ((Ennemy.PosX - self.x)**2 + (Ennemy.PosY - self.y)**2) <= 40**2:
+            Ennemy.TakeDamage(self.dgts)
+        print(Ennemy.rotation)
+        print(self.Rotation)
+    
+    def DrawVie(self):
+        rect(self.x, self.y+20, self.vie*1.2, 4, 3)
+        
+    def PrendreCoup(self, Projectile):
+        if ((Projectile.PosX - self.x)**2 + (Projectile.PosY - self.y)**2) <= 8**2:
+            self.vie -= 5
+        
+    def Animation(self):
+        if self.hit == True:
+            self.x += 2
+            for i in range(4):
+                self.x += 4
+                time.sleep(50)
+                self.x -= 4
         
 
 
@@ -209,9 +330,8 @@ class elements_obtenable:
         for truc in self.boosts:
             truc.mort(self.tmp, self.boosts)
     def degat(self):
-        for elem in self.nombre:
-            elem.update()  
-
+        return self.nombre
+    
     def draw(self):
         for elem in self.nombre:
             elem.draw()
@@ -222,19 +342,19 @@ class elements_obtenable:
 class chest(elements_obtenable):
         def __init__(self, x, y, objet, health):
             elements_obtenable.__init__(self, 0, 0)
-            self.x = x
-            self.y = y
+            self.PosX = x
+            self.PosY = y
             self.obj = objet
             self.health = health
-        def update(self):
-            if pyxel.btn(pyxel.KEY_F):
-                self.health -= 1
+            self.rotation = None
+        def TakeDamage(self, degat):
+            self.health -= degat
         def mort(self, liste, nv):
             if self.health <= 0:
                 liste.pop(0)
-                nv.append(boost(self.x,self.y,self.obj))
+                nv.append(boost(self.PosX,self.PosY,self.obj))
         def draw(self):
-            pyxel.blt(self.x, self.y, 0, 96, 96, 32, 32, 4)
+            pyxel.blt(self.PosX, self.PosY, 0, 96, 96, 32, 32, 4)
         
 
 
@@ -263,7 +383,7 @@ class game:
         pyxel.init(256,256,"hell yeah", 60)
         pyxel.rseed(45510)
         pyxel.load("U2.pyxres")
-        self.Ennemi = Ennemy(EnnemyBase)
+        self.Manager = EnnemyManager(EnnemyManagerData)
         self.boite = elements_obtenable(0, 0)
         self.Main = Perso(16, 16)
         pyxel.run(self.update, self.draw)
@@ -273,17 +393,26 @@ class game:
         self.boite.update()
         self.Main.Angle()
         self.Main.compteur = (self.Main.compteur + 1)%8
-        self.Ennemi.Update()
+        self.Manager.update()
+        for elem in self.boite.degat():
+            self.Main.IfDgts(elem)
+        for elem in self.Manager.degat():
+            self.Main.IfDgts(elem)
+            for tir in elem.liste():
+                self.Main.PrendreCoup(tir)
         if self.Main.compteur == 0:
             self.Main.Go()
+        
 
     def draw(self):
         pyxel.cls(4)
         pyxel.mouse(True)
         self.Main.Draw()
         self.boite.draw()
-        self.Ennemi.Draw()
+        self.Manager.draw()
         self.Main.Zone()
+        self.Main.DrawVie()
+        
         
         
         
