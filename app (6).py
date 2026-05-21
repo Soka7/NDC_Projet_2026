@@ -3,7 +3,7 @@ from pyxel import *
 from math import degrees, atan2
 
 pyxel.init(256, 256, title = "jeu")
-pyxel.fullscreen(False)
+pyxel.fullscreen(True)
 pyxel.mouse(True)
 pyxel.load("U2.pyxres")
 
@@ -15,6 +15,7 @@ class Perso:
         self.compteur = 0
         self.dgts = 1
         self.vie = 20
+        self.hit = False
         
     def Angle(self):
         self.Rotation = degrees(atan2(self.y - pyxel.mouse_y, self.x - pyxel.mouse_x))
@@ -54,10 +55,19 @@ class Perso:
             "Une fonction fait degats"
     
     def DrawVie(self):
-        rect(self.x, self.y+12, self.vie*2, 4, 0)
+        rect(self.x, self.y+20, self.vie*1.2, 4, 3)
         
-    def PrendreCoup(self):
-        self.vie -= 5
+    def PrendreCoup(self, Projectile):
+        if ((Projectile.PosX - self.x)**2 + (Projectile.PosY - self.y)**2) <= 8**2:
+            self.vie -= 5
+        
+    def Animation(self):
+        if self.hit == True:
+            self.x += 2
+            for i in range(4):
+                self.x += 4
+                time.sleep(50)
+                self.x -= 4
         
 Main = Perso(24, 24)
 
@@ -71,5 +81,6 @@ def upt():
     Main.compteur = (Main.compteur + 1)%2
     if Main.compteur == 0:
         Main.Go()
+    Main.PrendreCoup(Stuff)
 
 pyxel.run(draw, upt)
