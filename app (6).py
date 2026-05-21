@@ -25,25 +25,25 @@ class Perso:
         rect(0, 0, cx-r, 256, 0)
         rect(0, cx+r, 256, 256, 0)
     def Go(self):
-        liste = [13, 12, 7, 0]
-        if btn(KEY_RIGHT) and pget(self.x + 8, self.y + 0) in liste:
-            self.x += 8
+        liste = [0]
+        if btn(KEY_RIGHT) and pget(self.x + 16, self.y + 0) in liste:
+            self.x += 16
             self.y += 0
-        if btn(KEY_UP) and pget(self.x + 8, self.y + 0) in liste:
+        if btn(KEY_UP) and pget(self.x + 16, self.y + 0) in liste:
             self.x += 0
-            self.y -= 8
-        if btn(KEY_DOWN) and pget(self.x + 8, self.y + 0) in liste:
+            self.y -= 16
+        if btn(KEY_DOWN) and pget(self.x + 16, self.y + 0) in liste:
             self.x += 0
-            self.y += 8
-        if btn(KEY_LEFT) and pget(self.x -8, self.y + 0) in liste:
-            self.x -= 8
+            self.y += 16
+        if btn(KEY_LEFT) and pget(self.x -16, self.y + 0) in liste:
+            self.x -= 16
             self.y += 0
     def Draw(self):
         bltm(0, 0, 0, 0, 0, 256, 256, colkey=4, scale=1)
         blt(self.x, self.y, 0, 96, 128, 16, 16, 4)
         blt(self.x-14, self.y-4, 0, 24, 96, 32, 16, 4, rotate = self.Rotation)
         
-Main = Perso(8, 8)
+Main = Perso(16, 16)
 
 def draw():
     pyxel.cls(4)
